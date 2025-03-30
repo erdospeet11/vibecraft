@@ -11,7 +11,7 @@ export class World {
   // World constants
   readonly CHUNK_SIZE = 16;
   readonly WORLD_HEIGHT = 128;
-  readonly RENDER_DISTANCE = 2;
+  readonly RENDER_DISTANCE = 3;
 
   constructor(scene: THREE.Scene) {
     this.scene = scene;
@@ -25,6 +25,11 @@ export class World {
   // Get the scene object
   getScene(): THREE.Scene {
     return this.scene;
+  }
+
+  // Get the texture manager
+  getTextureManager(): TextureManager {
+    return this.textureManager;
   }
 
   private generateInitialChunks(): void {
@@ -181,5 +186,47 @@ export class World {
     }
     
     return null;
+  }
+
+  update(playerPos: THREE.Vector3): void {
+    const currentPlayerChunkX = Math.floor(playerPos.x / this.CHUNK_SIZE);
+    const currentPlayerChunkZ = Math.floor(playerPos.z / this.CHUNK_SIZE);
+
+    // console.log(`Player at chunk: ${currentPlayerChunkX}, ${currentPlayerChunkZ}`); // Debug log
+
+    const requiredChunks = new Set<string>();
+    const chunksToLoad: { x: number, z: number }[] = [];
+
+    // Determine required chunks
+    for (let x = currentPlayerChunkX - this.RENDER_DISTANCE; x <= currentPlayerChunkX + this.RENDER_DISTANCE; x++) {
+      for (let z = currentPlayerChunkZ - this.RENDER_DISTANCE; z <= currentPlayerChunkZ + this.RENDER_DISTANCE; z++) {
+        const chunkKey = `${x},${z}`;
+        requiredChunks.add(chunkKey);
+        if (!this.chunks.has(chunkKey)) {
+          chunksToLoad.push({ x, z });
+        }
+      }
+    }
+
+    // // Debug log required chunks
+    // if (chunksToLoad.length > 0) {
+    //   console.log('Required Chunks:', Array.from(requiredChunks));
+    //   console.log('Chunks to Load:', chunksToLoad);
+    // }
+
+    // Load new chunks
+    chunksToLoad.forEach(({ x, z }) => {
+      // console.log(`Generating chunk: ${x}, ${z}`); // Debug log
+      this.generateChunk(x, z);
+    });
+
+    // Unload old chunks
+    this.chunks.forEach((chunk, chunkKey) => {
+      if (!requiredChunks.has(chunkKey)) {
+        // console.log(`Disposing chunk: ${chunkKey}`); // Debug log
+        chunk.dispose();
+        this.chunks.delete(chunkKey);
+      }
+    });
   }
 } 

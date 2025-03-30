@@ -20,7 +20,7 @@ export class FirstPersonControls {
   private velocity: THREE.Vector3 = new THREE.Vector3();
   private direction: THREE.Vector3 = new THREE.Vector3();
   private gravity: number = 9.8;
-  private playerHeight: number = 1.8;
+  private playerHeight: number = 3.6;
   private jumpSpeed: number = 5;
   private flyMode: boolean = false; // Start with flight mode disabled
   private playerWidth: number = 0.6; // Player width for collision detection
@@ -46,6 +46,21 @@ export class FirstPersonControls {
   private readonly MOUSE_SENSITIVITY: number = 0.002;
   private readonly MOVEMENT_SPEED: number = 1.5;
   
+  // Define hotbar blocks and selected index
+  private hotbarBlocks: BlockType[] = [
+    BlockType.DIRT,
+    BlockType.GRASS,
+    BlockType.STONE,
+    BlockType.WOOD,
+    BlockType.LEAVES,
+    BlockType.WATER,
+    BlockType.SAND,
+    BlockType.GLASS,
+    BlockType.BRICK
+  ];
+  private selectedHotbarIndex: number = 0; // Start with the first slot (index 0)
+  private blockPreviewURLs: Map<BlockType, string> = new Map();
+  
   constructor(camera: THREE.PerspectiveCamera, domElement: HTMLElement, world: World) {
     this.camera = camera;
     this.domElement = domElement;
@@ -62,6 +77,9 @@ export class FirstPersonControls {
     // Add yawObject to the scene
     world.getScene().add(this.yawObject);
     
+    // Set initial selected block type based on hotbar
+    this.selectedBlockType = this.hotbarBlocks[this.selectedHotbarIndex];
+    
     // Set up event listeners
     this.initEventListeners();
     
@@ -75,6 +93,10 @@ export class FirstPersonControls {
     
     // Initialize flight mode display
     this.updateFlightModeDisplay();
+
+    // Generate block previews and update UI
+    this.generateBlockPreviews();
+    this.updateHotbarUI();
   }
   
   private initEventListeners(): void {
@@ -146,22 +168,12 @@ export class FirstPersonControls {
       case 'Digit7':
       case 'Digit8':
       case 'Digit9':
-        // Select block type
-        const index = parseInt(event.code.replace('Digit', ''));
-        const blockTypes = [
-          BlockType.DIRT,
-          BlockType.GRASS,
-          BlockType.STONE,
-          BlockType.WOOD,
-          BlockType.LEAVES,
-          BlockType.WATER,
-          BlockType.SAND,
-          BlockType.GLASS,
-          BlockType.BRICK
-        ];
-        
-        if (index <= blockTypes.length) {
-          this.selectedBlockType = blockTypes[index - 1];
+        // Select hotbar slot
+        const index = parseInt(event.code.replace('Digit', '')) - 1;
+        if (index >= 0 && index < this.hotbarBlocks.length) {
+          this.selectedHotbarIndex = index;
+          this.selectedBlockType = this.hotbarBlocks[index];
+          this.updateHotbarUI(); // Update visuals
         }
         break;
     }
@@ -418,6 +430,10 @@ export class FirstPersonControls {
     return this.yawObject;
   }
   
+  getPlayerHeight(): number {
+    return this.playerHeight;
+  }
+  
   private updateFlightModeDisplay(): void {
     let flightModeElement = document.getElementById('flight-mode-indicator');
     
@@ -440,5 +456,48 @@ export class FirstPersonControls {
     
     flightModeElement.textContent = this.flyMode ? 'Flight Mode: ON (Press F to toggle)' : 'Flight Mode: OFF (Press F to toggle)';
     flightModeElement.style.backgroundColor = this.flyMode ? 'rgba(0, 128, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
+  }
+
+  // Generate data URLs for block textures to use in CSS
+  private generateBlockPreviews(): void {
+    const textureManager = this.world.getTextureManager();
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) return;
+
+    this.hotbarBlocks.forEach(blockType => {
+      const textures = textureManager.getTextures(blockType);
+      const texture = textures[0]; // Use the first texture for the preview
+      const opacity = textureManager.getBlockOpacity(blockType); // Get opacity from manager
+
+      if (texture && texture.image) {
+        ctx.clearRect(0, 0, 64, 64);
+        // Draw image, respecting transparency
+        ctx.globalAlpha = opacity;
+        ctx.drawImage(texture.image, 0, 0, 64, 64);
+        this.blockPreviewURLs.set(blockType, canvas.toDataURL());
+        ctx.globalAlpha = 1.0; // Reset alpha
+      } else {
+        // Fallback for generated textures (like colors)
+        console.warn(`Cannot generate preview for BlockType: ${blockType}`);
+      }
+    });
+  }
+
+  // Update the visual appearance of the hotbar
+  private updateHotbarUI(): void {
+    for (let i = 0; i < this.hotbarBlocks.length; i++) {
+      const slotElement = document.getElementById(`slot-${i + 1}`);
+      const blockType = this.hotbarBlocks[i];
+
+      if (slotElement) {
+        const previewURL = this.blockPreviewURLs.get(blockType);
+        slotElement.style.backgroundImage = previewURL ? `url(${previewURL})` : 'none';
+        slotElement.classList.toggle('selected', i === this.selectedHotbarIndex);
+      }
+    }
   }
 } 

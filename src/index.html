@@ -3,15 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="./images/vibecraft_icon.png" />
   <link rel="stylesheet" href="./styles/style.css">
   <title>VibeCraft</title>
 </head>
 <body>
-  <div id="game-container">
+  <div id="main-menu">
+    <h1>VibeCraft</h1>
+    <button id="start-game-button">Start Game</button>
+    <div class="menu-footer">A Simple Minecraft Clone</div>
+  </div>
+
+  <div id="game-container" style="display: none;">
     <div id="crosshair">+</div>
     <div id="hud">
       <div id="inventory"></div>
-      <div id="hotbar"></div>
+      <div id="hotbar">
+        <!-- Create 9 slots -->
+        <div class="hotbar-slot" id="slot-1"></div>
+        <div class="hotbar-slot" id="slot-2"></div>
+        <div class="hotbar-slot" id="slot-3"></div>
+        <div class="hotbar-slot" id="slot-4"></div>
+        <div class="hotbar-slot" id="slot-5"></div>
+        <div class="hotbar-slot" id="slot-6"></div>
+        <div class="hotbar-slot" id="slot-7"></div>
+        <div class="hotbar-slot" id="slot-8"></div>
+        <div class="hotbar-slot" id="slot-9"></div>
+      </div>
     </div>
   </div>
   <script type="module" src="./main.ts"></script>

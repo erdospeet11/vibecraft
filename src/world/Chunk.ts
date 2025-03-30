@@ -73,38 +73,36 @@ export class Chunk {
         
         // Fill blocks from bottom to top
         for (let y = 0; y < this.height; y++) {
+          const depth = Math.floor(terrainHeight) - y;
+
           // Bedrock at bottom
           if (y === 0) {
             this.blocks[x][y][z] = BlockType.BEDROCK;
           }
-          // Stone layer
-          else if (y < terrainHeight - 4) {
+          // Stone layer below dirt
+          else if (depth > 4) { // Anything more than 4 blocks deep is stone
             this.blocks[x][y][z] = BlockType.STONE;
           }
-          // Dirt layer
-          else if (y < terrainHeight - 1) {
+          // Dirt layer (3 blocks thick)
+          else if (depth >= 1 && depth <= 4) {
             this.blocks[x][y][z] = BlockType.DIRT;
           }
-          // Surface block - grass, sand, or stone depending on height
-          else if (y === Math.floor(terrainHeight - 1)) {
-            // Beaches near water level
+          // Top layer
+          else if (depth === 0) { // y is the exact integer height
+            // Sand near water level
             if (terrainHeight < 12) {
               this.blocks[x][y][z] = BlockType.SAND;
-            } 
-            // Higher elevations get stone
-            else if (terrainHeight > 24) {
-              this.blocks[x][y][z] = BlockType.STONE;
             }
-            // Otherwise grass
+            // Otherwise, always grass on top
             else {
               this.blocks[x][y][z] = BlockType.GRASS;
             }
           }
-          // Water in lower areas
-          else if (y < 10 && terrainHeight < 10) {
+          // Water replaces air below water level
+          else if (y < 10) { // Check if below water level (y=10)
             this.blocks[x][y][z] = BlockType.WATER;
           }
-          // Air above terrain
+          // Air above terrain/water
           else {
             this.blocks[x][y][z] = BlockType.AIR;
           }

@@ -4,6 +4,7 @@ import { BlockType } from './BlockType';
 export class TextureManager {
   private textureLoader: THREE.TextureLoader;
   private textures: Map<BlockType, THREE.Texture[]>;
+  private blockOpacities: Map<BlockType, number> = new Map(); // Store opacity per block type
   
   constructor() {
     this.textureLoader = new THREE.TextureLoader();
@@ -37,6 +38,17 @@ export class TextureManager {
     this.textures.set(BlockType.GRASS, [
       grassSide, grassSide, grassTop, grassBottom, grassSide, grassSide
     ]);
+
+    // Ensure all blocks in hotbar have an opacity entry (default to 1.0)
+    const hotbarBlocks = [
+      BlockType.DIRT, BlockType.GRASS, BlockType.STONE, BlockType.WOOD,
+      BlockType.LEAVES, BlockType.WATER, BlockType.SAND, BlockType.GLASS, BlockType.BRICK
+    ];
+    hotbarBlocks.forEach(type => {
+      if (!this.blockOpacities.has(type)) {
+        this.blockOpacities.set(type, 1.0);
+      }
+    });
   }
   
   private createTextureSet(type: BlockType, color: number, opacity: number = 1.0): void {
@@ -51,6 +63,8 @@ export class TextureManager {
     this.textures.set(type, [
       mainTexture, mainTexture, topTexture, bottomTexture, mainTexture, mainTexture
     ]);
+    // Store the opacity for this block type
+    this.blockOpacities.set(type, opacity); 
   }
   
   private lightenColor(color: number, percent: number): number {
@@ -181,4 +195,12 @@ export class TextureManager {
     
     return textures;
   }
+
+  // Get the opacity defined for a block type
+  getBlockOpacity(type: BlockType): number {
+    return this.blockOpacities.get(type) ?? 1.0; // Default to 1.0 if not found
+  }
+
+  // Create a gradient map texture for toon shading
+  // ... (existing createToonGradientMap) ...
 } 

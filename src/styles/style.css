@@ -45,9 +45,26 @@ canvas {
 #hotbar {
   display: flex;
   gap: 4px;
-  padding: 8px;
+  padding: 4px;
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 4px;
+  border: 2px solid #555555;
+}
+
+.hotbar-slot {
+  width: 50px;
+  height: 50px;
+  border: 2px solid #333333;
+  background-color: rgba(128, 128, 128, 0.3);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  image-rendering: pixelated;
+}
+
+.hotbar-slot.selected {
+  border-color: white;
+  box-shadow: 0 0 5px white;
 }
 
 #inventory {
@@ -59,4 +76,67 @@ canvas {
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: 4px;
   margin-bottom: 8px;
-} 
+}
+
+#main-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('https://www.transparenttextures.com/patterns/dirt.png') #a0774e; /* Dirt-like background */
+  background-size: 64px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-family: 'Minecraftia', 'Courier New', Courier, monospace; /* Minecraft-like font (needs import or fallback) */
+  color: white;
+  text-shadow: 2px 2px 0px #3a3a3a; /* Minecraft-style shadow */
+}
+
+#main-menu h1 {
+  font-size: 4em;
+  margin-bottom: 30px;
+}
+
+#main-menu button {
+  background-color: #717171;
+  border: 2px solid #3a3a3a;
+  color: white;
+  padding: 15px 30px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.5em;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 20px;
+  min-width: 200px;
+  box-shadow: 0px 4px 0px #3a3a3a;
+  transition: background-color 0.1s ease;
+}
+
+#main-menu button:hover {
+  background-color: #8a8a8a;
+}
+
+#main-menu button:active {
+  box-shadow: none;
+  transform: translateY(4px);
+}
+
+.menu-footer {
+  position: absolute;
+  bottom: 10px;
+  font-size: 0.8em;
+  color: #cccccc;
+  text-shadow: 1px 1px 0px #3a3a3a;
+}
+
+/* Add a font-face rule if you download a Minecraft font */
+/* @font-face {
+  font-family: 'Minecraftia';
+  src: url('/path/to/minecraft-font.ttf') format('truetype');
+} */ 
